@@ -1,10 +1,13 @@
-import { posts, getPostBySlug } from "@/lib/posts";
+import { getAllPosts, getPostBySlug, deriveCategories, getRecentPosts } from "@/lib/posts";
 import Sidebar from "@/components/Sidebar";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import type { Metadata } from "next";
 
+export const revalidate = 60;
+
 export async function generateStaticParams() {
+  const posts = await getAllPosts();
   return posts.map((post) => ({ slug: post.slug }));
 }
 
@@ -14,7 +17,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const post = getPostBySlug(slug);
+  const post = await getPostBySlug(slug);
   if (!post) return {};
   return {
     title: post.title,
@@ -96,8 +99,12 @@ export default async function BlogPostPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const post = getPostBySlug(slug);
+  const post = await getPostBySlug(slug);
   if (!post) notFound();
+
+  const allPosts = await getAllPosts();
+  const categories = deriveCategories(allPosts);
+  const recentPosts = getRecentPosts(allPosts, 5);
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-10">
@@ -191,7 +198,7 @@ export default async function BlogPostPage({
         </div>
 
         {/* Right sidebar */}
-        <Sidebar />
+        <Sidebar categories={categories} recentPosts={recentPosts} />
       </div>
     </div>
   );

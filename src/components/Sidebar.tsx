@@ -1,9 +1,13 @@
 import Link from "next/link";
-import { categories, getRecentPosts } from "@/lib/posts";
+import type { Post } from "@/lib/posts";
 
-export default function Sidebar() {
-  const recentPosts = getRecentPosts(5);
-
+export default function Sidebar({
+  categories,
+  recentPosts,
+}: {
+  categories: { name: string; count: number }[];
+  recentPosts: Post[];
+}) {
   return (
     <aside className="w-full md:w-72 flex-shrink-0 space-y-5">
       {/* Profile card */}

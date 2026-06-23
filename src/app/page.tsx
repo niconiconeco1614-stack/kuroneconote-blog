@@ -1,8 +1,14 @@
-import { posts } from "@/lib/posts";
+import { getAllPosts, deriveCategories, getRecentPosts } from "@/lib/posts";
 import ArticleCard from "@/components/ArticleCard";
 import Sidebar from "@/components/Sidebar";
 
-export default function Home() {
+export const revalidate = 60;
+
+export default async function Home() {
+  const posts = await getAllPosts();
+  const categories = deriveCategories(posts);
+  const recentPosts = getRecentPosts(posts, 5);
+
   return (
     <div className="max-w-6xl mx-auto px-4 py-10">
       {/* Hero */}
@@ -47,7 +53,7 @@ export default function Home() {
         </div>
 
         {/* Right sidebar */}
-        <Sidebar />
+        <Sidebar categories={categories} recentPosts={recentPosts} />
       </div>
     </div>
   );
