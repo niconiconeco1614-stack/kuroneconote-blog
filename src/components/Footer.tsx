@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { CATEGORIES } from "@/lib/categories";
 
 export default function Footer() {
   return (
@@ -21,17 +22,17 @@ export default function Footer() {
               <h3 className="text-white font-bold">まくろなねこNOTE</h3>
             </div>
             <p className="text-sm leading-relaxed">
-              総務・人事担当者のための業務効率化ツール紹介ブログ。現場で本当に使えるツールの選び方・活用法を発信しています。
+              総務・人事担当者のための業務効率化ツール紹介ブログ。エクセルマクロ、Google Apps Script、AppSheet、Dify、生成AIなどを活用した業務効率化のノウハウを発信しています。
             </p>
           </div>
 
           <div>
             <h3 className="text-white font-bold mb-4">カテゴリ</h3>
             <ul className="space-y-2 text-sm">
-              {["タスク管理", "勤怠管理", "ワークフロー", "コミュニケーション", "給与・経費管理"].map((cat) => (
-                <li key={cat}>
-                  <Link href="/" className="hover:text-white transition-colors">
-                    {cat}
+              {CATEGORIES.map((cat) => (
+                <li key={cat.slug}>
+                  <Link href={`/category/${cat.slug}`} className="hover:text-white transition-colors">
+                    {cat.name}
                   </Link>
                 </li>
               ))}
@@ -43,9 +44,9 @@ export default function Footer() {
             <ul className="space-y-2 text-sm">
               {[
                 { label: "ホーム", href: "/" },
-                { label: "このブログについて", href: "/" },
-                { label: "プライバシーポリシー", href: "/" },
-                { label: "お問い合わせ", href: "/" },
+                { label: "このブログについて", href: "/about" },
+                { label: "プライバシーポリシー", href: "/privacy" },
+                { label: "お問い合わせ", href: "/contact" },
               ].map((item) => (
                 <li key={item.label}>
                   <Link href={item.href} className="hover:text-white transition-colors">

@@ -1,6 +1,8 @@
 import { getAllPosts, getPostBySlug, deriveCategories, getRecentPosts } from "@/lib/posts";
+import { getCategoryByName } from "@/lib/categories";
 import Sidebar from "@/components/Sidebar";
 import { notFound } from "next/navigation";
+import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
 
@@ -115,7 +117,7 @@ export default async function BlogPostPage({
         </Link>
         <span aria-hidden="true">›</span>
         <Link
-          href={`/category/${encodeURIComponent(post.category)}`}
+          href={`/category/${getCategoryByName(post.category)?.slug ?? encodeURIComponent(post.category)}`}
           className="hover:text-indigo-600 transition-colors"
         >
           {post.category}
@@ -127,6 +129,18 @@ export default async function BlogPostPage({
       <div className="flex flex-col md:flex-row gap-8">
         {/* Main content */}
         <div className="flex-1 min-w-0">
+          {/* Cover image */}
+          <div className="relative h-56 md:h-72 rounded-xl overflow-hidden mb-6">
+            <Image
+              src={post.coverImage}
+              alt=""
+              fill
+              sizes="(min-width: 768px) 768px, 100vw"
+              className="object-cover"
+              priority
+            />
+          </div>
+
           {/* Article header */}
           <div className="bg-white border border-gray-200 rounded-xl p-6 md:p-8 mb-6">
             <div className="flex items-center gap-2 mb-4 flex-wrap">

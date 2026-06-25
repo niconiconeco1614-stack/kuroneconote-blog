@@ -1,32 +1,22 @@
+import Image from "next/image";
 import Link from "next/link";
 import type { Post } from "@/lib/posts";
-
-const categoryEmoji: Record<string, string> = {
-  タスク管理: "📋",
-  勤怠管理: "⏰",
-  ワークフロー: "🔄",
-  コミュニケーション: "💬",
-  "給与・経費管理": "💰",
-};
-
-const categoryColor: Record<string, string> = {
-  タスク管理: "bg-indigo-100 text-indigo-700",
-  勤怠管理: "bg-blue-100 text-blue-700",
-  ワークフロー: "bg-violet-100 text-violet-700",
-  コミュニケーション: "bg-green-100 text-green-700",
-  "給与・経費管理": "bg-amber-100 text-amber-700",
-};
+import { getCategoryByName } from "@/lib/categories";
 
 export default function ArticleCard({ post }: { post: Post }) {
-  const emoji = categoryEmoji[post.category] ?? "📄";
-  const colorClass = categoryColor[post.category] ?? "bg-gray-100 text-gray-700";
+  const category = getCategoryByName(post.category);
+  const colorClass = category?.color ?? "bg-gray-100 text-gray-700";
 
   return (
     <article className="bg-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-md transition-shadow group">
-      <div className="h-40 bg-gradient-to-br from-indigo-50 via-white to-gray-100 flex items-center justify-center">
-        <span className="text-5xl" aria-hidden="true">
-          {emoji}
-        </span>
+      <div className="h-40 relative">
+        <Image
+          src={post.coverImage}
+          alt=""
+          fill
+          sizes="(min-width: 768px) 50vw, 100vw"
+          className="object-cover"
+        />
       </div>
 
       <div className="p-5">

@@ -17,7 +17,7 @@ export const metadata: Metadata = {
     template: "%s | まくろなねこNOTE",
   },
   description:
-    "総務・人事向け業務効率化ツールの紹介ブログ。現場で本当に使えるツールの選び方・活用法を発信しています。",
+    "総務・人事向け業務効率化ブログ。エクセルマクロ、Google Apps Script、AppSheet、Dify、生成AIなどを活用した業務効率化のノウハウを発信しています。",
   metadataBase: new URL("https://kuroneconote.com"),
 };
 

@@ -2,6 +2,8 @@ import { cache } from "react";
 import type { PageObjectResponse, RichTextItemResponse } from "@notionhq/client";
 import { getDataSourceId, notionClient } from "./notion";
 
+export const DEFAULT_COVER_IMAGE = "/default-cover.jpg";
+
 export type Post = {
   slug: string;
   title: string;
@@ -11,6 +13,7 @@ export type Post = {
   tags: string[];
   readingTime: number;
   content: string;
+  coverImage: string;
 };
 
 function richTextToPlain(richText: RichTextItemResponse[]): string {
@@ -37,6 +40,12 @@ function isPublished(page: PageObjectResponse): boolean {
   return prop?.type === "checkbox" && prop.checkbox;
 }
 
+function getCoverImage(page: PageObjectResponse): string {
+  if (page.cover?.type === "external") return page.cover.external.url;
+  if (page.cover?.type === "file") return page.cover.file.url;
+  return DEFAULT_COVER_IMAGE;
+}
+
 function pageToPost(page: PageObjectResponse, content = ""): Post {
   const props = page.properties;
 
@@ -61,6 +70,7 @@ function pageToPost(page: PageObjectResponse, content = ""): Post {
     tags: [],
     readingTime: estimateReadingTime(content || excerpt),
     content,
+    coverImage: getCoverImage(page),
   };
 }
 

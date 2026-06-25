@@ -1,5 +1,7 @@
+import Image from "next/image";
 import Link from "next/link";
 import type { Post } from "@/lib/posts";
+import { getCategoryByName } from "@/lib/categories";
 
 export default function Sidebar({
   categories,
@@ -12,29 +14,19 @@ export default function Sidebar({
     <aside className="w-full md:w-72 flex-shrink-0 space-y-5">
       {/* Profile card */}
       <div className="bg-white border border-gray-200 rounded-xl p-6 text-center">
-        {/* ---- 黒猫マスコットアイコン ---- */}
-        {/* 画像に差し替える場合は下の div を <Image> コンポーネントに置き換えてください */}
-        <div className="w-20 h-20 mx-auto mb-4 bg-gray-900 rounded-full flex items-center justify-center">
-          <svg viewBox="0 0 100 100" className="w-14 h-14" aria-hidden="true">
-            <ellipse cx="50" cy="65" rx="26" ry="21" fill="white" />
-            <circle cx="50" cy="38" r="21" fill="white" />
-            <polygon points="30,22 23,3 43,18" fill="white" />
-            <polygon points="70,22 77,3 57,18" fill="white" />
-            <ellipse cx="42" cy="36" rx="3.5" ry="4.5" fill="#1a1a2e" />
-            <ellipse cx="58" cy="36" rx="3.5" ry="4.5" fill="#1a1a2e" />
-            <circle cx="43" cy="34" r="1.2" fill="white" />
-            <circle cx="59" cy="34" r="1.2" fill="white" />
-            <ellipse cx="50" cy="43" rx="2.5" ry="1.8" fill="#ffb3c6" />
-            <line x1="32" y1="42" x2="46" y2="44" stroke="white" strokeWidth="1.5" strokeLinecap="round" />
-            <line x1="32" y1="47" x2="46" y2="47" stroke="white" strokeWidth="1.5" strokeLinecap="round" />
-            <line x1="68" y1="42" x2="54" y2="44" stroke="white" strokeWidth="1.5" strokeLinecap="round" />
-            <line x1="68" y1="47" x2="54" y2="47" stroke="white" strokeWidth="1.5" strokeLinecap="round" />
-          </svg>
+        <div className="w-20 h-20 mx-auto mb-4 rounded-full overflow-hidden relative">
+          <Image
+            src="/くろねこ写真01.jpg"
+            alt="にこにこねこ"
+            fill
+            sizes="80px"
+            className="object-cover"
+          />
         </div>
 
-        <h3 className="font-bold text-gray-900 mb-1">まくろなねこ</h3>
+        <h3 className="font-bold text-gray-900 mb-1">にこにこねこ</h3>
         <p className="text-xs text-gray-500 mb-4 leading-relaxed">
-          総務・人事歴10年。業務効率化ツールの導入支援をしながら、現場で使えるツールの情報を発信中。
+          総務・人事歴20年以上。業務効率化ツールの導入支援をしながら、現場で使えるツールの情報を発信中。
         </p>
 
         {/* YouTube リンクボタン */}
@@ -74,7 +66,7 @@ export default function Sidebar({
             {categories.map((cat) => (
               <li key={cat.name}>
                 <Link
-                  href={`/category/${encodeURIComponent(cat.name)}`}
+                  href={`/category/${getCategoryByName(cat.name)?.slug ?? encodeURIComponent(cat.name)}`}
                   className="flex items-center justify-between text-sm text-gray-700 hover:text-indigo-600 transition-colors py-1.5 group"
                 >
                   <span className="flex items-center gap-2">
