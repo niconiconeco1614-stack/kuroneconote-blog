@@ -5,6 +5,8 @@ import { submitContactForm, type ContactFormState } from "./actions";
 
 const initialState: ContactFormState = { status: "idle", message: "" };
 
+const CATEGORIES = ["ツールの質問", "ブログへの感想", "仕事依頼", "その他"] as const;
+
 export default function ContactForm() {
   const [state, formAction, pending] = useActionState(submitContactForm, initialState);
 
@@ -20,7 +22,7 @@ export default function ContactForm() {
     <form action={formAction} className="space-y-5">
       <div>
         <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1.5">
-          お名前
+          お名前 <span className="text-red-500">*</span>
         </label>
         <input
           type="text"
@@ -36,7 +38,7 @@ export default function ContactForm() {
 
       <div>
         <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1.5">
-          メールアドレス
+          メールアドレス <span className="text-red-500">*</span>
         </label>
         <input
           type="email"
@@ -51,18 +53,39 @@ export default function ContactForm() {
       </div>
 
       <div>
-        <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-1.5">
-          メッセージ
+        <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-1.5">
+          問い合わせ種別 <span className="text-red-500">*</span>
+        </label>
+        <select
+          id="category"
+          name="category"
+          required
+          defaultValue=""
+          className="w-full border border-gray-300 rounded-lg px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white"
+        >
+          <option value="" disabled>選択してください</option>
+          {CATEGORIES.map((cat) => (
+            <option key={cat} value={cat}>{cat}</option>
+          ))}
+        </select>
+        {state.errors?.category && (
+          <p className="text-xs text-red-600 mt-1">{state.errors.category}</p>
+        )}
+      </div>
+
+      <div>
+        <label htmlFor="content" className="block text-sm font-medium text-gray-700 mb-1.5">
+          内容 <span className="text-red-500">*</span>
         </label>
         <textarea
-          id="message"
-          name="message"
+          id="content"
+          name="content"
           rows={6}
           required
           className="w-full border border-gray-300 rounded-lg px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
         />
-        {state.errors?.message && (
-          <p className="text-xs text-red-600 mt-1">{state.errors.message}</p>
+        {state.errors?.content && (
+          <p className="text-xs text-red-600 mt-1">{state.errors.content}</p>
         )}
       </div>
 
