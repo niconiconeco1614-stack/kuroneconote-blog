@@ -23,7 +23,7 @@ const notion = new Client({ auth: process.env.NOTION_TOKEN });
 
 function getAnthropic(): Anthropic {
   const key = process.env.ANTHROPIC_API_KEY;
-  if (!key) throw new Error("ANTHROPIC_API_KEY is not set");
+  if (!key) throw new Error("ANTHROPIC_API_KEY が未設定です");
   return new Anthropic({ apiKey: key });
 }
 
@@ -65,6 +65,11 @@ function toRichText(text: string): { text: { content: string } }[] {
   return chunks.length > 0 ? chunks : [{ text: { content: "" } }];
 }
 
+function errorMessage(err: unknown): string {
+  if (err instanceof Error) return err.message;
+  return String(err);
+}
+
 export async function submitContactForm(
   _prevState: ContactFormState,
   formData: FormData
@@ -90,15 +95,24 @@ export async function submitContactForm(
     return { status: "error", message: "入力内容をご確認ください", errors };
   }
 
+  // ── 環境変数チェック ──────────────────────────────────────────
   const dbId = process.env.CONTACT_NOTION_DATABASE_ID;
   if (!dbId) {
-    console.error("[contact] CONTACT_NOTION_DATABASE_ID is not set");
+    console.error("[contact] CONTACT_NOTION_DATABASE_ID が未設定です。.env.local を確認してください。");
+    return {
+      status: "error",
+      message: "お問い合わせの送信に失敗しました。しばらく経ってから再度お試しください。",
+    };
+  }
+  if (!process.env.NOTION_TOKEN) {
+    console.error("[contact] NOTION_TOKEN が未設定です。");
     return {
       status: "error",
       message: "お問い合わせの送信に失敗しました。しばらく経ってから再度お試しください。",
     };
   }
 
+  // ── Notion: ページ作成 ───────────────────────────────────────
   let pageId: string;
   try {
     const page = await notion.pages.create({
@@ -113,16 +127,21 @@ export async function submitContactForm(
       },
     });
     pageId = page.id;
+    console.log(`[contact] Notion page created: ${pageId}`);
   } catch (err) {
-    console.error("[contact] Failed to create Notion page:", err);
+    console.error("[contact] Notion page creation failed:", errorMessage(err));
+    console.error("[contact] Detail:", err);
     return {
       status: "error",
       message: "お問い合わせの送信に失敗しました。しばらく経ってから再度お試しください。",
     };
   }
 
+  // ── Claude API: AI回答案生成 ─────────────────────────────────
   try {
     const anthropic = getAnthropic();
+    console.log("[contact] Generating AI reply...");
+
     const aiResponse = await anthropic.messages.create({
       model: "claude-haiku-4-5-20251001",
       max_tokens: 1024,
@@ -134,14 +153,19 @@ export async function submitContactForm(
       .map((block) => block.text)
       .join("");
 
+    console.log(`[contact] AI reply generated (${aiReply.length} chars)`);
+
     await notion.pages.update({
       page_id: pageId,
       properties: {
         AI回答案: { rich_text: toRichText(aiReply) },
       },
     });
+    console.log("[contact] AI reply saved to Notion");
   } catch (err) {
-    console.error("[contact] Failed to generate AI reply:", err);
+    // AI生成の失敗はフォーム送信全体を止めない
+    console.error("[contact] AI reply generation failed:", errorMessage(err));
+    console.error("[contact] Detail:", err);
   }
 
   return {
