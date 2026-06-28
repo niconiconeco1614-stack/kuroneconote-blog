@@ -80,6 +80,30 @@ function MarkdownRenderer({ content }: { content: string }) {
       listBuffer.push(line.slice(2));
     } else if (line.trim() === "") {
   flushList(`list-empty-${i}`);
+
+} else if (line.startsWith("[youtube](")) {
+  flushList(`list-before-yt-${i}`);
+  const match = line.match(/^\[youtube\]\((.*?)\)$/);
+  if (match) {
+    const url = match[1];
+    const videoId = url.match(
+      /(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n?#]+)/
+    )?.[1];
+    if (videoId) {
+      elements.push(
+        <div key={i} className="my-6 aspect-video rounded-xl overflow-hidden">
+          <iframe
+            src={`https://www.youtube.com/embed/${videoId}`}
+            title="YouTube video"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+            className="w-full h-full"
+          />
+        </div>
+      );
+    }
+  }
+
 } else if (line.startsWith("![")) {
   flushList(`list-before-img-${i}`);
   const match = line.match(/^!\[(.*?)\]\((.*?)\)$/);

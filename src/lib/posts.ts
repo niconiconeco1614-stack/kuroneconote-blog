@@ -104,18 +104,24 @@ async function fetchPageContent(pageId: string): Promise<string> {
       } else if (block.type === "paragraph") {
         lines.push(richTextToMarkdown(block.paragraph.rich_text));
       } else if (block.type === "image") {
-        const url =
-          block.image.type === "external"
-            ? block.image.external.url
-            : block.image.file.url;
-        const caption =
-          block.image.caption?.length > 0
-            ? richTextToMarkdown(block.image.caption)
-            : "";
-        lines.push(`![${caption}](${url})`);
-      } else {
-        continue;
-      }
+  const url =
+    block.image.type === "external"
+      ? block.image.external.url
+      : block.image.file.url;
+  const caption =
+    block.image.caption?.length > 0
+      ? richTextToMarkdown(block.image.caption)
+      : "";
+  lines.push(`![${caption}](${url})`);
+} else if (block.type === "video") {
+  const url =
+    block.video.type === "external"
+      ? block.video.external.url
+      : "";
+  if (url) lines.push(`[youtube](${url})`);
+} else {
+  continue;
+}
       lines.push("");
     }
 
