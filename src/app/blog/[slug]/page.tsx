@@ -79,15 +79,33 @@ function MarkdownRenderer({ content }: { content: string }) {
     } else if (line.startsWith("- ")) {
       listBuffer.push(line.slice(2));
     } else if (line.trim() === "") {
-      flushList(`list-empty-${i}`);
-    } else {
-      flushList(`list-before-p-${i}`);
-      elements.push(
-        <p key={i} className="text-gray-700 leading-relaxed my-3">
-          {renderInline(line)}
-        </p>
-      );
-    }
+  flushList(`list-empty-${i}`);
+} else if (line.startsWith("![")) {
+  flushList(`list-before-img-${i}`);
+  const match = line.match(/^!\[(.*?)\]\((.*?)\)$/);
+  if (match) {
+    const [, alt, src] = match;
+    elements.push(
+      <div key={i} className="my-6 rounded-xl overflow-hidden">
+        <img
+          src={src}
+          alt={alt}
+          className="w-full h-auto"
+        />
+        {alt && (
+          <p className="text-center text-xs text-gray-400 mt-2">{alt}</p>
+        )}
+      </div>
+    );
+  }
+} else {
+  flushList(`list-before-p-${i}`);
+  elements.push(
+    <p key={i} className="text-gray-700 leading-relaxed my-3">
+      {renderInline(line)}
+    </p>
+  );
+}
   });
 
   flushList("final");

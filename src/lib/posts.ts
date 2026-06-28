@@ -103,6 +103,16 @@ async function fetchPageContent(pageId: string): Promise<string> {
         lines.push(richTextToMarkdown(block.quote.rich_text));
       } else if (block.type === "paragraph") {
         lines.push(richTextToMarkdown(block.paragraph.rich_text));
+      } else if (block.type === "image") {
+        const url =
+          block.image.type === "external"
+            ? block.image.external.url
+            : block.image.file.url;
+        const caption =
+          block.image.caption?.length > 0
+            ? richTextToMarkdown(block.image.caption)
+            : "";
+        lines.push(`![${caption}](${url})`);
       } else {
         continue;
       }
