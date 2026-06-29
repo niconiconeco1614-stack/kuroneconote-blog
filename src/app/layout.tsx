@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Noto_Sans_JP } from "next/font/google";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import Script from "next/script";
 import "./globals.css";
 
 const notoSansJP = Noto_Sans_JP({
@@ -29,6 +30,18 @@ export default function RootLayout({
   return (
     <html lang="ja" className={notoSansJP.variable}>
       <body className="min-h-screen flex flex-col bg-gray-50 text-gray-800">
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-YLQJQS55LS"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-YLQJQS55LS');
+          `}
+        </Script>
         <Header />
         <main className="flex-1">{children}</main>
         <Footer />
