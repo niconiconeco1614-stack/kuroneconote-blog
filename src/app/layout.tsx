@@ -29,12 +29,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ja" className={notoSansJP.variable}>
-      <body className="min-h-screen flex flex-col bg-gray-50 text-gray-800">
+      <head>
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-YLQJQS55LS"
-          strategy="afterInteractive"
+          strategy="beforeInteractive"
         />
-        <Script id="google-analytics" strategy="afterInteractive">
+        <Script id="google-analytics" strategy="beforeInteractive">
           {`
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
@@ -42,6 +42,8 @@ export default function RootLayout({
             gtag('config', 'G-YLQJQS55LS');
           `}
         </Script>
+      </head>
+      <body className="min-h-screen flex flex-col bg-gray-50 text-gray-800">
         <Header />
         <main className="flex-1">{children}</main>
         <Footer />
