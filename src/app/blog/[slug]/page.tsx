@@ -45,21 +45,35 @@ function MarkdownRenderer({ content }: { content: string }) {
   };
 
   const renderInline = (text: string): React.ReactNode => {
-    const parts = text.split(/(\*\*.*?\*\*|`.*?`)/g);
-    return parts.map((part, i) => {
-      if (part.startsWith("**") && part.endsWith("**")) {
-        return <strong key={i} className="font-bold text-gray-900">{part.slice(2, -2)}</strong>;
-      }
-      if (part.startsWith("`") && part.endsWith("`")) {
-        return (
-          <code key={i} className="bg-gray-100 text-gray-800 px-1.5 py-0.5 rounded text-sm font-mono">
-            {part.slice(1, -1)}
-          </code>
-        );
-      }
-      return part;
-    });
-  };
+  const parts = text.split(/(\*\*.*?\*\*|`.*?`|\[.*?\]\(.*?\))/g);
+  return parts.map((part, i) => {
+    if (part.startsWith("**") && part.endsWith("**")) {
+      return <strong key={i} className="font-bold text-gray-900">{part.slice(2, -2)}</strong>;
+    }
+    if (part.startsWith("`") && part.endsWith("`")) {
+      return (
+        <code key={i} className="bg-gray-100 text-gray-800 px-1.5 py-0.5 rounded text-sm font-mono">
+          {part.slice(1, -1)}
+        </code>
+      );
+    }
+    const linkMatch = part.match(/^\[(.*?)\]\((.*?)\)$/);
+    if (linkMatch) {
+      return (
+        <a
+          key={i}
+          href={linkMatch[2]}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-indigo-600 hover:text-indigo-800 underline"
+        >
+          {linkMatch[1]}
+        </a>
+      );
+    }
+    return part;
+  });
+};
 
   lines.forEach((line, i) => {
     if (line.startsWith("## ")) {
@@ -80,6 +94,39 @@ function MarkdownRenderer({ content }: { content: string }) {
       listBuffer.push(line.slice(2));
     } else if (line.trim() === "") {
   flushList(`list-empty-${i}`);
+
+} else if (line.startsWith("[table]")) {
+      flushList(`list-before-table-${i}`);
+      const match = line.match(/^\[table\](.*)\[\/table\]$/);
+      if (match) {
+        const rows: string[][] = JSON.parse(match[1]);
+        elements.push(
+          <div key={i} className="my-6 overflow-x-auto">
+            <table className="w-full border-collapse text-sm">
+              <thead>
+                <tr className="bg-indigo-50">
+                  {rows[0].map((cell, ci) => (
+                    <th key={ci} className="border border-gray-200 px-4 py-2 text-left font-bold text-gray-900">
+                      {renderInline(cell)}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {rows.slice(1).map((row, ri) => (
+                  <tr key={ri} className={ri % 2 === 0 ? "bg-white" : "bg-gray-50"}>
+                    {row.map((cell, ci) => (
+                      <td key={ci} className="border border-gray-200 px-4 py-2 text-gray-700">
+                        {renderInline(cell)}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        );
+      }
 
 } else if (line.startsWith("[youtube](")) {
   flushList(`list-before-yt-${i}`);

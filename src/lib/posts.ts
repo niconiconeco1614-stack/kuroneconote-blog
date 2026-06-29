@@ -26,6 +26,7 @@ function richTextToMarkdown(richText: RichTextItemResponse[]): string {
       let text = t.plain_text;
       if (t.annotations.code) text = `\`${text}\``;
       if (t.annotations.bold) text = `**${text}**`;
+      if (t.href) text = `[${text}](${t.href})`;
       return text;
     })
     .join("");
@@ -119,6 +120,21 @@ async function fetchPageContent(pageId: string): Promise<string> {
       ? block.video.external.url
       : "";
   if (url) lines.push(`[youtube](${url})`);
+} else if (block.type === "table") {
+  const tableRows = await notionClient.blocks.children.list({
+    block_id: block.id,
+  });
+  const rows: string[][] = [];
+  for (const row of tableRows.results) {
+    if (!("type" in row) || row.type !== "table_row") continue;
+    const cells = row.table_row.cells.map((cell) =>
+      richTextToMarkdown(cell)
+    );
+    rows.push(cells);
+  }
+  if (rows.length > 0) {
+    lines.push(`[table]${JSON.stringify(rows)}[/table]`);
+  }
 } else {
   continue;
 }
